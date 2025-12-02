@@ -13,7 +13,7 @@
       <h2 class="text-xl font-medium">
         Gifts
       </h2>
-      <UToggle v-model="showOnlyAvailable" on-label="Available only" off-label="All items" />
+      <!-- <UToggle v-model="showOnlyAvailable" on-label="Available only" off-label="All items" /> -->
     </div>
 
     <UCard>

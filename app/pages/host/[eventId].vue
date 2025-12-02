@@ -10,9 +10,18 @@
             {{ data.event.date }} • {{ data.event.hostEmail }}
           </p>
         </div>
-        <div class="flex flex-col md:flex-row gap-2">
-          <UInput :model-value="data.event.hostCode" readonly aria-label="Host code" />
-          <UInput :model-value="data.event.guestCode" readonly aria-label="Guest code" />
+        <div class="flex flex-col gap-2 md:items-end">
+          <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+            <UFormField label="Host code" name="host-code">
+              <UInput :model-value="data.event.hostCode" readonly />
+            </UFormField>
+            <UFormField label="Guest code" name="guest-code">
+              <UInput :model-value="data.event.guestCode" readonly />
+            </UFormField>
+          </div>
+          <p class="text-xs text-gray-500 max-w-md">
+            Share the guest code with your invitees. Keep the host code private to manage the list.
+          </p>
         </div>
       </div>
     </UCard>

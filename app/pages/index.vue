@@ -7,6 +7,22 @@
 
       <UCard>
         <h2 class="text-xl font-medium mb-4">
+          Have a code?
+        </h2>
+        <UForm :state="loginState" @submit="onLogin">
+          <div class="space-y-4">
+            <UFormField label="Access code" name="code" required>
+              <UInput v-model="loginState.code" placeholder="Enter host or guest code" />
+            </UFormField>
+            <UButton :loading="loginLoading" type="submit" block color="neutral" variant="soft">
+              Continue
+            </UButton>
+          </div>
+        </UForm>
+      </UCard>
+
+      <UCard>
+        <h2 class="text-xl font-medium mb-4">
           Create an event
         </h2>
         <UForm :state="createState" @submit="onCreateEvent">
@@ -22,22 +38,6 @@
             </UFormField>
             <UButton :loading="createLoading" type="submit" block>
               Create event
-            </UButton>
-          </div>
-        </UForm>
-      </UCard>
-
-      <UCard>
-        <h2 class="text-xl font-medium mb-4">
-          Have a code?
-        </h2>
-        <UForm :state="loginState" @submit="onLogin">
-          <div class="space-y-4">
-            <UFormField label="Access code" name="code" required>
-              <UInput v-model="loginState.code" placeholder="Enter host or guest code" />
-            </UFormField>
-            <UButton :loading="loginLoading" type="submit" block color="gray" variant="soft">
-              Continue
             </UButton>
           </div>
         </UForm>
@@ -64,7 +64,7 @@ const loginLoading = ref(false)
 
 async function onCreateEvent() {
   if (!createState.name || !createState.date || !createState.hostEmail) {
-    toast.add({ title: 'Please fill all required fields', color: 'red' })
+    toast.add({ title: 'Please fill all required fields', color: 'error' })
     return
   }
   try {
@@ -80,8 +80,9 @@ async function onCreateEvent() {
     // @ts-expect-error redirect from API
     await router.push(res.redirect)
   }
-  catch (e: any) {
-    toast.add({ title: e?.data?.statusMessage || 'Failed to create event', color: 'red' })
+  catch (e: unknown) {
+    const err = e as { data?: { statusMessage?: string } }
+    toast.add({ title: err?.data?.statusMessage || 'Failed to create event', color: 'error' })
   }
   finally {
     createLoading.value = false
@@ -90,7 +91,7 @@ async function onCreateEvent() {
 
 async function onLogin() {
   if (!loginState.code) {
-    toast.add({ title: 'Please enter a code', color: 'red' })
+    toast.add({ title: 'Please enter a code', color: 'error' })
     return
   }
   try {
@@ -104,8 +105,9 @@ async function onLogin() {
     // @ts-expect-error redirect from API
     await router.push(res.redirect)
   }
-  catch (e: any) {
-    toast.add({ title: e?.data?.statusMessage || 'Invalid code', color: 'red' })
+  catch (e: unknown) {
+    const err = e as { data?: { statusMessage?: string } }
+    toast.add({ title: err?.data?.statusMessage || 'Invalid code', color: 'error' })
   }
   finally {
     loginLoading.value = false
