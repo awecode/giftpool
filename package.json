@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "d1m": "pnpx wrangler d1 migrations apply giftpool --remote"
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",
