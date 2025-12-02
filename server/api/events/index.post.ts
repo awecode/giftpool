@@ -30,8 +30,8 @@ export default defineEventHandler(async (event) => {
   const session = createSession(event, inserted.id, 'host')
 
   const baseUrl = `${event.node.req.headers['x-forwarded-proto'] ?? 'https'}://${event.node.req.headers.host}`
-  const hostUrl = `${baseUrl}/host/${inserted.id}`
-  const guestUrl = `${baseUrl}/guest/${inserted.id}`
+  // const hostUrl = `${baseUrl}/host/${inserted.id}`
+  // const guestUrl = `${baseUrl}/guest/${inserted.id}`
 
   const subject = `Your event "${inserted.name}" has been created`
   const message = [
@@ -41,8 +41,7 @@ export default defineEventHandler(async (event) => {
     `Host code: ${hostCode}`,
     `Guest code: ${guestCode}`,
     '',
-    `Host dashboard: ${hostUrl}`,
-    `Guest link (share with invitees): ${guestUrl}`,
+    `Access the wishlist by using host or guest code at: ${baseUrl}`,
   ].join('\n')
 
   await sendEmail({
