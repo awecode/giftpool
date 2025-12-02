@@ -12,7 +12,7 @@
         <UForm :state="createState" @submit="onCreateEvent">
           <div class="space-y-4">
             <UFormField label="Event name" name="name" required>
-              <UInput v-model="createState.name" placeholder="Birthday, Baby Shower..." />
+              <UInput v-model="createState.name" placeholder="Jane's Birthday" />
             </UFormField>
             <UFormField label="Event date" name="date" required>
               <UInput v-model="createState.date" type="date" />

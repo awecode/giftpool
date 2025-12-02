@@ -2,8 +2,7 @@ import { defineEventHandler, readBody } from 'h3'
 import { useDb } from '../../utils/db'
 import { events } from '../../db/schema'
 import { generateHostCode, generateGuestCode, createSession } from '../../utils/session'
-import { sendSesEmail } from '../../utils/ses'
-import { eq } from 'drizzle-orm'
+import { sendEmail } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ name: string, date: string, hostEmail: string }>(event)
@@ -46,7 +45,7 @@ export default defineEventHandler(async (event) => {
     `Guest link (share with invitees): ${guestUrl}`,
   ].join('\n')
 
-  await sendSesEmail({
+  await sendEmail({
     toEmails: [inserted.hostEmail],
     subject,
     message,

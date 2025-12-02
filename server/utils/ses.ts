@@ -1,12 +1,5 @@
 import { AwsClient } from 'aws4fetch'
-
-interface SendEmailParams {
-  toEmails: string[]
-  replyToEmails?: string[]
-  subject: string
-  message?: string
-  html?: string
-}
+import type { SendEmailParams } from './email'
 
 export async function sendSesEmail({
   toEmails,

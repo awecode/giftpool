@@ -2,7 +2,7 @@ import { defineEventHandler } from 'h3'
 import { useDb } from '../../utils/db'
 import { events, items, claims } from '../../db/schema'
 import { requireSession } from '../../utils/session'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import { deriveItemStatus } from '../../utils/status'
 
 export default defineEventHandler(async (event) => {
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
   const itemRows = await db.select().from(items).where(eq(items.eventId, eventId))
   const claimRows = await db.select().from(claims).where(
     and(
-      claims.itemId.in(itemRows.map(i => i.id)),
+      inArray(claims.itemId, itemRows.map(i => i.id)),
     ),
   )
 

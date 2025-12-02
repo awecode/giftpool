@@ -3,7 +3,7 @@ import { useDb } from '../../../utils/db'
 import { items, events, claims } from '../../../db/schema'
 import { requireSession } from '../../../utils/session'
 import { and, eq } from 'drizzle-orm'
-import { sendSesEmail } from '../../../utils/ses'
+import { sendEmail } from '../../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const session = requireSession(event)
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
     const displayName = body.name || 'Anonymous Guest'
     const subject = `An item was bought for "${eventRow.name}"`
     const message = `${displayName} marked "${itemRow.name}" as bought.`
-    await sendSesEmail({
+    await sendEmail({
       toEmails: [eventRow.hostEmail],
       subject,
       message,
