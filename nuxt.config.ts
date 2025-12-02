@@ -8,7 +8,13 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
-    DATABASE_URL: ''
+    DATABASE_URL: '',
+    ses: {
+      region: process.env.NUXT_SES_REGION || 'us-east-1',
+      accessKeyId: process.env.NUXT_SES_ACCESS_KEY_ID || '',
+      secretKey: process.env.NUXT_SES_SECRET_KEY || '',
+      fromEmail: process.env.NUXT_SES_FROM_EMAIL || '',
+    },
   },
   vite: {
     plugins: [
