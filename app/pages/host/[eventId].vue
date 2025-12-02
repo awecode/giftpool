@@ -96,12 +96,19 @@
 
 <script setup lang="ts">
 const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 
 const { data, refresh, error } = await useFetch(`/api/events/${route.params.eventId}`)
 
 if (error.value) {
-  throw createError(error.value)
+  if (error.value.statusCode === 401) {
+    toast.add({ title: 'Session expired', color: 'error' })
+    await router.push('/')
+  }
+  else {
+    throw createError(error.value)
+  }
 }
 
 const showForm = ref(false)
@@ -180,7 +187,12 @@ async function saveItem() {
     await refresh()
   }
   catch (e: unknown) {
-    const err = e as { data?: { statusMessage?: string } }
+    const err = e as { statusCode?: number, data?: { statusMessage?: string } }
+    if (err?.statusCode === 401) {
+      toast.add({ title: 'Session expired', color: 'error' })
+      await router.push('/')
+      return
+    }
     toast.add({ title: err?.data?.statusMessage || 'Failed to save item', color: 'error' })
   }
   finally {
@@ -195,7 +207,12 @@ async function removeItem(id: number) {
     await refresh()
   }
   catch (e: unknown) {
-    const err = e as { data?: { statusMessage?: string } }
+    const err = e as { statusCode?: number, data?: { statusMessage?: string } }
+    if (err?.statusCode === 401) {
+      toast.add({ title: 'Session expired', color: 'error' })
+      await router.push('/')
+      return
+    }
     toast.add({ title: err?.data?.statusMessage || 'Failed to delete item', color: 'error' })
   }
 }

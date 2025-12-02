@@ -105,15 +105,22 @@
 
 <script setup lang="ts">
 const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 
 const { data, refresh, error } = await useFetch(`/api/events/${route.params.eventId}`)
 
 if (error.value) {
-  throw createError(error.value)
+  if (error.value.statusCode === 401) {
+    toast.add({ title: 'Session expired', color: 'error' })
+    await router.push('/')
+  }
+  else {
+    throw createError(error.value)
+  }
 }
 
-const showOnlyAvailable = ref(true)
+const showOnlyAvailable = ref(false)
 
 const filteredItems = computed(() => {
   if (!data.value) return []
@@ -154,8 +161,14 @@ async function submitAction() {
     showForm.value = false
     await refresh()
   }
-  catch (e: any) {
-    toast.add({ title: e?.data?.statusMessage || 'Failed to update item', color: 'error' })
+  catch (e: unknown) {
+    const err = e as { statusCode?: number, data?: { statusMessage?: string } }
+    if (err?.statusCode === 401) {
+      toast.add({ title: 'Session expired', color: 'error' })
+      await router.push('/')
+      return
+    }
+    toast.add({ title: err?.data?.statusMessage || 'Failed to update item', color: 'error' })
   }
   finally {
     formLoading.value = false
@@ -169,8 +182,14 @@ async function undo(item: any) {
     })
     await refresh()
   }
-  catch (e: any) {
-    toast.add({ title: e?.data?.statusMessage || 'Failed to undo', color: 'error' })
+  catch (e: unknown) {
+    const err = e as { statusCode?: number, data?: { statusMessage?: string } }
+    if (err?.statusCode === 401) {
+      toast.add({ title: 'Session expired', color: 'error' })
+      await router.push('/')
+      return
+    }
+    toast.add({ title: err?.data?.statusMessage || 'Failed to undo', color: 'error' })
   }
 }
 </script>
