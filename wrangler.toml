@@ -8,3 +8,10 @@ binding = "DB"
 database_name = "giftpool"
 database_id = "edb6ea15-b13a-4ee2-aa4f-8ecd4399aa35"
 migrations_dir = "./server/db/migrations"
+
+[observability]
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
