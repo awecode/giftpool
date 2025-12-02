@@ -9,6 +9,9 @@
         <h2 class="text-xl font-medium mb-4">
           Have a code?
         </h2>
+        <p class="text-xs text-gray-500 mb-3">
+          Enter the host or guest code to jump straight to an existing event.
+        </p>
         <UForm :state="loginState" @submit="onLogin">
           <div class="space-y-4">
             <UFormField label="Access code" name="code" required>
@@ -25,6 +28,9 @@
         <h2 class="text-xl font-medium mb-4">
           Create an event
         </h2>
+        <p class="text-xs text-gray-500 mb-3">
+          Set up a new event wishlist and we’ll email you the host and guest codes to share.
+        </p>
         <UForm :state="createState" @submit="onCreateEvent">
           <div class="space-y-4">
             <UFormField label="Event name" name="name" required>
