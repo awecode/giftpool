@@ -34,8 +34,8 @@
             <div class="text-xs text-gray-500 mt-1">
               Status:
               <span v-if="item.status === 'AVAILABLE'">Available</span>
-              <span v-else-if="item.status === 'PLANNED'">Planned by {{ item.guestDisplayName }}</span>
-              <span v-else>Bought by {{ item.guestDisplayName }}</span>
+              <span v-else-if="item.status === 'PLANNED'">Planned</span>
+              <span v-else>Bought</span>
             </div>
           </div>
           <div class="flex gap-2 justify-end">
@@ -94,9 +94,6 @@
             help="If checked, even the host will only see “Anonymous Guest”. Other guests never see your name."
           >
             <UCheckbox v-model="formState.anonymous" label="Hide my name from the host" />
-          </UFormField>
-          <UFormField label="Email" name="email" help="Optional, shared only with the host.">
-            <UInput v-model="formState.email" type="email" placeholder="(optional)" />
           </UFormField>
           <div class="flex justify-end gap-2 pt-4">
             <UButton color="neutral" variant="soft" @click="showForm = false">
@@ -181,14 +178,13 @@ const actionStatus = ref<'PLANNING' | 'BOUGHT'>('PLANNING')
 
 const formState = reactive({
   name: '',
-  email: '',
   anonymous: false,
 })
 
 function openAction(item: GuestItem, status: 'PLANNING' | 'BOUGHT') {
   selectedItem.value = item
   actionStatus.value = status
-  Object.assign(formState, { name: '', email: '', anonymous: false })
+  Object.assign(formState, { name: '', anonymous: false })
   showForm.value = true
 }
 
@@ -205,7 +201,6 @@ async function submitAction() {
       body: {
         status: actionStatus.value === 'PLANNING' ? 'PLANNING' : 'BOUGHT',
         name: formState.name,
-        email: formState.email || undefined,
         anonymous: formState.anonymous,
       },
     })
