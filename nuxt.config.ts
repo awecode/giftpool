@@ -13,4 +13,12 @@ export default defineNuxtConfig({
       tailwindcss(),
     ],
   },
+  eslint: {
+    config: {
+      stylistic: {
+        quotes: 'single',
+        semi: false,
+      },
+    },
+  },
 })
