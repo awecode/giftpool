@@ -26,10 +26,15 @@
       </div>
     </UCard>
 
-    <div class="flex justify-between items-center">
-      <h2 class="text-xl font-medium">
-        Items
-      </h2>
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <h2 class="text-xl font-medium">
+          Items
+        </h2>
+        <p class="text-xs text-gray-500 mt-1">
+          Manage the wishlist for this event. Guests will only see item details and anonymous statuses.
+        </p>
+      </div>
       <UButton size="sm" @click="openCreate">
         Add item
       </UButton>

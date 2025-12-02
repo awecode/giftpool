@@ -9,10 +9,15 @@
       </p>
     </UCard>
 
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-medium">
-        Gifts
-      </h2>
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-medium">
+          Gifts
+        </h2>
+        <p class="text-xs text-gray-500 mt-1">
+          Choose an item to plan or mark as bought. Your name is only used to let you undo your choice.
+        </p>
+      </div>
       <!-- <UToggle v-model="showOnlyAvailable" on-label="Available only" off-label="All items" /> -->
     </div>
 
@@ -84,7 +89,7 @@
             label="Your name"
             name="name"
             required
-            help="Only you (and optionally the host) can use this to undo your choice later."
+            help="Only you can use this to undo your choice later."
           >
             <UInput v-model="formState.name" placeholder="Your name" />
           </UFormField>
