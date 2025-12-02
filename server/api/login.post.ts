@@ -2,7 +2,8 @@ import { defineEventHandler, readBody } from 'h3'
 import { useDb } from '../utils/db'
 import { events } from '../db/schema'
 import { createSession } from '../utils/session'
-import { eq } from 'drizzle-orm'
+import { eq, or } from 'drizzle-orm'
+
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ code: string }>(event)
@@ -20,7 +21,7 @@ export default defineEventHandler(async (event) => {
   const rows = await db
     .select()
     .from(events)
-    .where(eq(events.hostCode, code).or(eq(events.guestCode, code)))
+    .where(or(eq(events.hostCode, code), eq(events.guestCode, code)))
     .limit(1)
 
   const eventRow = rows[0]
