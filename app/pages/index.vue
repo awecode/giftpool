@@ -11,15 +11,15 @@
         </h2>
         <UForm :state="createState" @submit="onCreateEvent">
           <div class="space-y-4">
-            <UFormGroup label="Event name" name="name" required>
+            <UFormField label="Event name" name="name" required>
               <UInput v-model="createState.name" placeholder="Birthday, Baby Shower..." />
-            </UFormGroup>
-            <UFormGroup label="Event date" name="date" required>
+            </UFormField>
+            <UFormField label="Event date" name="date" required>
               <UInput v-model="createState.date" type="date" />
-            </UFormGroup>
-            <UFormGroup label="Host email" name="hostEmail" required>
+            </UFormField>
+            <UFormField label="Host email" name="hostEmail" required>
               <UInput v-model="createState.hostEmail" type="email" placeholder="you@example.com" />
-            </UFormGroup>
+            </UFormField>
             <UButton :loading="createLoading" type="submit" block>
               Create event
             </UButton>
@@ -33,9 +33,9 @@
         </h2>
         <UForm :state="loginState" @submit="onLogin">
           <div class="space-y-4">
-            <UFormGroup label="Access code" name="code" required>
+            <UFormField label="Access code" name="code" required>
               <UInput v-model="loginState.code" placeholder="Enter host or guest code" />
-            </UFormGroup>
+            </UFormField>
             <UButton :loading="loginLoading" type="submit" block color="gray" variant="soft">
               Continue
             </UButton>

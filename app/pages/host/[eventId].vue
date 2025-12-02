@@ -72,18 +72,18 @@
         </template>
         <UForm :state="formState" @submit="saveItem">
           <div class="space-y-4">
-            <UFormGroup label="Name" name="name" required>
+            <UFormField label="Name" name="name" required>
               <UInput v-model="formState.name" />
-            </UFormGroup>
-            <UFormGroup label="Link" name="link">
+            </UFormField>
+            <UFormField label="Link" name="link">
               <UInput v-model="formState.link" />
-            </UFormGroup>
-            <UFormGroup label="Description" name="description">
+            </UFormField>
+            <UFormField label="Description" name="description">
               <UTextarea v-model="formState.description" />
-            </UFormGroup>
-            <UFormGroup label="Quantity (display only)" name="quantity">
+            </UFormField>
+            <UFormField label="Quantity (display only)" name="quantity">
               <UInput v-model.number="formState.quantity" type="number" min="1" />
-            </UFormGroup>
+            </UFormField>
           </div>
           <template #footer>
             <div class="flex justify-end gap-2">

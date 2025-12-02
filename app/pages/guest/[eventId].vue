@@ -84,12 +84,12 @@
             <p class="text-sm">
               Optional: share your details with the host.
             </p>
-            <UFormGroup label="Name" name="name">
+            <UFormField label="Name" name="name">
               <UInput v-model="formState.name" placeholder="Anonymous Guest" />
-            </UFormGroup>
-            <UFormGroup label="Email" name="email">
+            </UFormField>
+            <UFormField label="Email" name="email">
               <UInput v-model="formState.email" type="email" placeholder="(optional)" />
-            </UFormGroup>
+            </UFormField>
           </div>
           <template #footer>
             <div class="flex justify-end gap-2">
