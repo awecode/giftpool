@@ -42,7 +42,7 @@
             <UButton
               v-if="item.status === 'AVAILABLE'"
               size="xs"
-              color="gray"
+              color="neutral"
               variant="soft"
               @click="openAction(item, 'PLANNING')"
             >
@@ -58,7 +58,7 @@
             <UButton
               v-if="item.status !== 'AVAILABLE'"
               size="xs"
-              color="red"
+              color="error"
               variant="soft"
               @click="undo(item)"
             >
@@ -72,37 +72,33 @@
       </p>
     </UCard>
 
-    <UModal v-model="showForm">
-      <UCard>
-        <template #header>
-          <h3 class="text-lg font-medium">
-            {{ actionStatus === 'BOUGHT' ? 'Mark as bought' : 'Plan to buy' }}
-          </h3>
-        </template>
-        <UForm :state="formState" @submit="submitAction">
-          <div class="space-y-4">
-            <p class="text-sm">
-              Optional: share your details with the host.
-            </p>
-            <UFormField label="Name" name="name">
-              <UInput v-model="formState.name" placeholder="Anonymous Guest" />
-            </UFormField>
-            <UFormField label="Email" name="email">
-              <UInput v-model="formState.email" type="email" placeholder="(optional)" />
-            </UFormField>
+    <UModal
+      v-model:open="showForm"
+      :title="actionStatus === 'BOUGHT' ? 'Mark as bought' : 'Plan to buy'"
+    >
+      <template #default />
+
+      <template #body>
+        <UForm :state="formState" class="space-y-4" @submit="submitAction">
+          <p class="text-sm text-muted">
+            Optional: share your details with the host.
+          </p>
+          <UFormField label="Name" name="name">
+            <UInput v-model="formState.name" placeholder="Anonymous Guest" />
+          </UFormField>
+          <UFormField label="Email" name="email">
+            <UInput v-model="formState.email" type="email" placeholder="(optional)" />
+          </UFormField>
+          <div class="flex justify-end gap-2 pt-4">
+            <UButton color="neutral" variant="soft" @click="showForm = false">
+              Cancel
+            </UButton>
+            <UButton type="submit" :loading="formLoading">
+              Confirm
+            </UButton>
           </div>
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="gray" variant="soft" @click="showForm = false">
-                Cancel
-              </UButton>
-              <UButton type="submit" :loading="formLoading">
-                Confirm
-              </UButton>
-            </div>
-          </template>
         </UForm>
-      </UCard>
+      </template>
     </UModal>
   </div>
 </template>
@@ -159,7 +155,7 @@ async function submitAction() {
     await refresh()
   }
   catch (e: any) {
-    toast.add({ title: e?.data?.statusMessage || 'Failed to update item', color: 'red' })
+    toast.add({ title: e?.data?.statusMessage || 'Failed to update item', color: 'error' })
   }
   finally {
     formLoading.value = false
@@ -174,7 +170,7 @@ async function undo(item: any) {
     await refresh()
   }
   catch (e: any) {
-    toast.add({ title: e?.data?.statusMessage || 'Failed to undo', color: 'red' })
+    toast.add({ title: e?.data?.statusMessage || 'Failed to undo', color: 'error' })
   }
 }
 </script>

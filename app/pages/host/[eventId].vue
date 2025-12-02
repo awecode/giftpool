@@ -49,10 +49,10 @@
             </div>
           </div>
           <div class="flex gap-2 justify-end">
-            <UButton size="xs" color="gray" variant="soft" @click="openEdit(item)">
+            <UButton size="xs" color="neutral" variant="soft" @click="openEdit(item)">
               Edit
             </UButton>
-            <UButton size="xs" color="red" variant="soft" @click="removeItem(item.id)">
+            <UButton size="xs" color="error" variant="soft" @click="removeItem(item.id)">
               Delete
             </UButton>
           </div>
@@ -63,40 +63,33 @@
       </p>
     </UCard>
 
-    <USlideover v-model="showForm">
-      <UCard class="flex flex-col h-full">
-        <template #header>
-          <h3 class="text-lg font-medium">
-            {{ editingItem ? 'Edit item' : 'Add item' }}
-          </h3>
-        </template>
-        <UForm :state="formState" @submit="saveItem">
-          <div class="space-y-4">
-            <UFormField label="Name" name="name" required>
-              <UInput v-model="formState.name" />
-            </UFormField>
-            <UFormField label="Link" name="link">
-              <UInput v-model="formState.link" />
-            </UFormField>
-            <UFormField label="Description" name="description">
-              <UTextarea v-model="formState.description" />
-            </UFormField>
-            <UFormField label="Quantity (display only)" name="quantity">
-              <UInput v-model.number="formState.quantity" type="number" min="1" />
-            </UFormField>
+    <USlideover v-model:open="showForm" :title="editingItem ? 'Edit item' : 'Add item'">
+      <template #default />
+
+      <template #body>
+        <UForm :state="formState" class="space-y-4" @submit="saveItem">
+          <UFormField label="Name" name="name" required>
+            <UInput v-model="formState.name" />
+          </UFormField>
+          <UFormField label="Link" name="link">
+            <UInput v-model="formState.link" />
+          </UFormField>
+          <UFormField label="Description" name="description">
+            <UTextarea v-model="formState.description" />
+          </UFormField>
+          <UFormField label="Quantity (display only)" name="quantity">
+            <UInput v-model.number="formState.quantity" type="number" min="1" />
+          </UFormField>
+          <div class="flex justify-end gap-2 pt-4">
+            <UButton color="neutral" variant="soft" @click="showForm = false">
+              Cancel
+            </UButton>
+            <UButton type="submit" :loading="formLoading">
+              Save
+            </UButton>
           </div>
-          <template #footer>
-            <div class="flex justify-end gap-2">
-              <UButton color="gray" variant="soft" @click="showForm = false">
-                Cancel
-              </UButton>
-              <UButton type="submit" :loading="formLoading">
-                Save
-              </UButton>
-            </div>
-          </template>
         </UForm>
-      </UCard>
+      </template>
     </USlideover>
   </div>
 </template>
@@ -113,7 +106,17 @@ if (error.value) {
 
 const showForm = ref(false)
 const formLoading = ref(false)
-const editingItem = ref<any | null>(null)
+interface ItemData {
+  id: number
+  name: string
+  link?: string | null
+  description?: string | null
+  quantity?: number | null
+  status: string
+  guestName?: string | null
+}
+
+const editingItem = ref<ItemData | null>(null)
 
 const formState = reactive({
   name: '',
@@ -133,7 +136,7 @@ function openCreate() {
   showForm.value = true
 }
 
-function openEdit(item: any) {
+function openEdit(item: ItemData) {
   editingItem.value = item
   Object.assign(formState, {
     name: item.name,
@@ -146,7 +149,7 @@ function openEdit(item: any) {
 
 async function saveItem() {
   if (!formState.name) {
-    toast.add({ title: 'Name is required', color: 'red' })
+    toast.add({ title: 'Name is required', color: 'error' })
     return
   }
   try {
@@ -176,8 +179,9 @@ async function saveItem() {
     showForm.value = false
     await refresh()
   }
-  catch (e: any) {
-    toast.add({ title: e?.data?.statusMessage || 'Failed to save item', color: 'red' })
+  catch (e: unknown) {
+    const err = e as { data?: { statusMessage?: string } }
+    toast.add({ title: err?.data?.statusMessage || 'Failed to save item', color: 'error' })
   }
   finally {
     formLoading.value = false
@@ -190,8 +194,9 @@ async function removeItem(id: number) {
     await $fetch(`/api/items/${id}`, { method: 'DELETE' })
     await refresh()
   }
-  catch (e: any) {
-    toast.add({ title: e?.data?.statusMessage || 'Failed to delete item', color: 'red' })
+  catch (e: unknown) {
+    const err = e as { data?: { statusMessage?: string } }
+    toast.add({ title: err?.data?.statusMessage || 'Failed to delete item', color: 'error' })
   }
 }
 </script>
