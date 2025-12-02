@@ -5,6 +5,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/eslint', '@nuxt/hints', '@nuxt/ui'],
 
+  css: ['~/assets/css/main.css'],
+
   runtimeConfig: {
     DATABASE_URL: ''
   },
