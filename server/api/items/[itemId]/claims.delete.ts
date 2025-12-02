@@ -1,8 +1,12 @@
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, readBody } from 'h3'
 import { useDb } from '../../../utils/db'
 import { items, events, claims } from '../../../db/schema'
 import { requireSession } from '../../../utils/session'
-import { and, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
+
+interface UndoBody {
+  name: string
+}
 
 export default defineEventHandler(async (event) => {
   const session = requireSession(event)
@@ -10,6 +14,12 @@ export default defineEventHandler(async (event) => {
   const itemId = Number(event.context.params?.itemId)
   if (!Number.isFinite(itemId)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid item id' })
+  }
+
+  const body = await readBody<UndoBody>(event)
+  const rawName = body?.name?.trim()
+  if (!rawName) {
+    throw createError({ statusCode: 400, statusMessage: 'Name is required to undo a claim' })
   }
 
   const db = useDb()
@@ -37,7 +47,28 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
   }
 
-  await db.delete(claims).where(eq(claims.itemId, itemId))
+  const [latestClaim] = await db
+    .select()
+    .from(claims)
+    .where(eq(claims.itemId, itemId))
+    .orderBy(desc(claims.createdAt))
+    .limit(1)
+
+  if (!latestClaim) {
+    throw createError({ statusCode: 404, statusMessage: 'No claim found for this item' })
+  }
+
+  const normalizedInput = rawName.toLowerCase()
+  const normalizedStored = (latestClaim.guestName ?? '').trim().toLowerCase()
+
+  if (!normalizedStored || normalizedStored !== normalizedInput) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Name does not match the person who claimed this item',
+    })
+  }
+
+  await db.delete(claims).where(eq(claims.id, latestClaim.id))
 
   return { success: true }
 })

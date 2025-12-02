@@ -5,6 +5,13 @@ import { requireSession } from '../../../utils/session'
 import { and, eq } from 'drizzle-orm'
 import { sendEmail } from '../../../utils/email'
 
+interface ClaimBody {
+  status: 'PLANNING' | 'BOUGHT'
+  name: string
+  email?: string
+  anonymous?: boolean
+}
+
 export default defineEventHandler(async (event) => {
   const session = requireSession(event)
 
@@ -13,10 +20,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid item id' })
   }
 
-  const body = await readBody<{ status: 'PLANNING' | 'BOUGHT', name?: string, email?: string }>(event)
+  const body = await readBody<ClaimBody>(event)
   if (!body?.status || !['PLANNING', 'BOUGHT'].includes(body.status)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid status' })
   }
+
+  const rawName = body.name?.trim()
+  if (!rawName) {
+    throw createError({ statusCode: 400, statusMessage: 'Name is required to claim an item' })
+  }
+
+  const isAnonymous = body.anonymous ? 1 : 0
 
   const db = useDb()
   if (!db) {
@@ -46,12 +60,13 @@ export default defineEventHandler(async (event) => {
   const [inserted] = await db.insert(claims).values({
     itemId,
     status: body.status,
-    guestName: body.name,
+    guestName: rawName,
     guestEmail: body.email,
+    isAnonymous,
   }).returning()
 
   if (body.status === 'BOUGHT') {
-    const displayName = body.name || 'Anonymous Guest'
+    const displayName = isAnonymous ? 'Anonymous Guest' : rawName
     const subject = `An item was bought for "${eventRow.name}"`
     const message = `${displayName} marked "${itemRow.name}" as bought.`
     await sendEmail({

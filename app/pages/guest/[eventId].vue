@@ -34,8 +34,8 @@
             <div class="text-xs text-gray-500 mt-1">
               Status:
               <span v-if="item.status === 'AVAILABLE'">Available</span>
-              <span v-else-if="item.status === 'PLANNED'">Planned by {{ item.guestName }}</span>
-              <span v-else>Bought by {{ item.guestName }}</span>
+              <span v-else-if="item.status === 'PLANNED'">Planned by {{ item.guestDisplayName }}</span>
+              <span v-else>Bought by {{ item.guestDisplayName }}</span>
             </div>
           </div>
           <div class="flex gap-2 justify-end">
@@ -80,13 +80,22 @@
 
       <template #body>
         <UForm :state="formState" class="space-y-4" @submit="submitAction">
-          <p class="text-sm text-muted">
-            Optional: share your details with the host.
-          </p>
-          <UFormField label="Name" name="name">
-            <UInput v-model="formState.name" placeholder="Anonymous Guest" />
+          <UFormField
+            label="Your name"
+            name="name"
+            required
+            help="Only you (and optionally the host) can use this to undo your choice later."
+          >
+            <UInput v-model="formState.name" placeholder="Your name" />
           </UFormField>
-          <UFormField label="Email" name="email">
+          <UFormField
+            label="Stay anonymous to the host"
+            name="anonymous"
+            help="If checked, even the host will only see “Anonymous Guest”. Other guests never see your name."
+          >
+            <UCheckbox v-model="formState.anonymous" label="Hide my name from the host" />
+          </UFormField>
+          <UFormField label="Email" name="email" help="Optional, shared only with the host.">
             <UInput v-model="formState.email" type="email" placeholder="(optional)" />
           </UFormField>
           <div class="flex justify-end gap-2 pt-4">
@@ -95,6 +104,33 @@
             </UButton>
             <UButton type="submit" :loading="formLoading">
               Confirm
+            </UButton>
+          </div>
+        </UForm>
+      </template>
+    </UModal>
+    <UModal
+      v-model:open="showUndoForm"
+      title="Undo your choice"
+    >
+      <template #default />
+
+      <template #body>
+        <UForm :state="undoState" class="space-y-4" @submit="submitUndo">
+          <UFormField
+            label="Your name"
+            name="undo-name"
+            required
+            help="Enter the same name you used when you claimed this item so we can verify it's you."
+          >
+            <UInput v-model="undoState.name" placeholder="Your name" />
+          </UFormField>
+          <div class="flex justify-end gap-2 pt-4">
+            <UButton color="neutral" variant="soft" @click="showUndoForm = false">
+              Cancel
+            </UButton>
+            <UButton type="submit" :loading="formLoading">
+              Confirm undo
             </UButton>
           </div>
         </UForm>
@@ -122,40 +158,55 @@ if (error.value) {
 
 const showOnlyAvailable = ref(false)
 
-const filteredItems = computed(() => {
+interface GuestItem {
+  id: number
+  name: string
+  description?: string | null
+  link?: string | null
+  status: string
+  guestDisplayName?: string | null
+}
+
+const filteredItems = computed<GuestItem[]>(() => {
   if (!data.value) return []
-  return data.value.items.filter((item: any) =>
+  return data.value.items.filter((item: GuestItem) =>
     showOnlyAvailable.value ? item.status === 'AVAILABLE' : true,
   )
 })
 
 const showForm = ref(false)
 const formLoading = ref(false)
-const selectedItem = ref<any | null>(null)
+const selectedItem = ref<GuestItem | null>(null)
 const actionStatus = ref<'PLANNING' | 'BOUGHT'>('PLANNING')
 
 const formState = reactive({
   name: '',
   email: '',
+  anonymous: false,
 })
 
-function openAction(item: any, status: 'PLANNING' | 'BOUGHT') {
+function openAction(item: GuestItem, status: 'PLANNING' | 'BOUGHT') {
   selectedItem.value = item
   actionStatus.value = status
-  Object.assign(formState, { name: '', email: '' })
+  Object.assign(formState, { name: '', email: '', anonymous: false })
   showForm.value = true
 }
 
 async function submitAction() {
   if (!selectedItem.value) return
   try {
+    if (!formState.name.trim()) {
+      toast.add({ title: 'Please enter your name to continue', color: 'error' })
+      return
+    }
     formLoading.value = true
     await $fetch(`/api/items/${selectedItem.value.id}/claims`, {
       method: 'POST',
       body: {
         status: actionStatus.value === 'PLANNING' ? 'PLANNING' : 'BOUGHT',
-        name: formState.name || undefined,
+        name: formState.name,
         email: formState.email || undefined,
+        anonymous: formState.anonymous,
       },
     })
     showForm.value = false
@@ -175,11 +226,32 @@ async function submitAction() {
   }
 }
 
-async function undo(item: any) {
+const showUndoForm = ref(false)
+const undoState = reactive({
+  name: '',
+})
+
+async function undo(item: GuestItem) {
+  selectedItem.value = item
+  undoState.name = ''
+  showUndoForm.value = true
+}
+
+async function submitUndo() {
+  if (!selectedItem.value) return
+  if (!undoState.name.trim()) {
+    toast.add({ title: 'Please enter your name to undo', color: 'error' })
+    return
+  }
   try {
-    await $fetch(`/api/items/${item.id}/claims`, {
+    formLoading.value = true
+    await $fetch(`/api/items/${selectedItem.value.id}/claims`, {
       method: 'DELETE',
+      body: {
+        name: undoState.name,
+      },
     })
+    showUndoForm.value = false
     await refresh()
   }
   catch (e: unknown) {
@@ -189,7 +261,14 @@ async function undo(item: any) {
       await router.push('/')
       return
     }
+    if (err?.statusCode === 403) {
+      toast.add({ title: err?.data?.statusMessage || 'Name doesn’t match the person who claimed this item', color: 'error' })
+      return
+    }
     toast.add({ title: err?.data?.statusMessage || 'Failed to undo', color: 'error' })
+  }
+  finally {
+    formLoading.value = false
   }
 }
 </script>

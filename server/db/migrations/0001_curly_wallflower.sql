@@ -1,0 +1,1 @@
+ALTER TABLE `claims` ADD `is_anonymous` integer DEFAULT 0 NOT NULL;

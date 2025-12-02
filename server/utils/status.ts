@@ -8,7 +8,8 @@ export type DerivedItemStatus = 'AVAILABLE' | 'PLANNED' | 'BOUGHT'
 
 export interface ItemWithStatus extends ItemRow {
   status: DerivedItemStatus
-  guestName: string | null
+  hostDisplayName: string | null
+  guestDisplayName: string | null
 }
 
 export function deriveItemStatus(item: ItemRow, itemClaims: ClaimRow[]): ItemWithStatus {
@@ -16,7 +17,8 @@ export function deriveItemStatus(item: ItemRow, itemClaims: ClaimRow[]): ItemWit
     return {
       ...item,
       status: 'AVAILABLE',
-      guestName: null,
+      hostDisplayName: null,
+      guestDisplayName: null,
     }
   }
 
@@ -25,10 +27,17 @@ export function deriveItemStatus(item: ItemRow, itemClaims: ClaimRow[]): ItemWit
 
   const status: DerivedItemStatus = latest.status === 'BOUGHT' ? 'BOUGHT' : 'PLANNED'
 
+  const hasName = !!latest.guestName && latest.guestName.trim().length > 0
+  const baseName = hasName ? latest.guestName!.trim() : 'Anonymous Guest'
+
+  const hostDisplayName = latest.isAnonymous ? 'Anonymous Guest' : baseName
+  const guestDisplayName = status === 'AVAILABLE' ? null : 'Anonymous Guest'
+
   return {
     ...item,
     status,
-    guestName: latest.guestName || 'Anonymous Guest',
+    hostDisplayName,
+    guestDisplayName,
   }
 }
 

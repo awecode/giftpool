@@ -53,8 +53,8 @@
             <div class="text-xs text-gray-500 mt-1">
               Status:
               <span v-if="item.status === 'AVAILABLE'">Available</span>
-              <span v-else-if="item.status === 'PLANNED'">Planned by {{ item.guestName }}</span>
-              <span v-else>Bought by {{ item.guestName }}</span>
+              <span v-else-if="item.status === 'PLANNED'">Planned by {{ item.hostDisplayName }}</span>
+              <span v-else>Bought by {{ item.hostDisplayName }}</span>
             </div>
           </div>
           <div class="flex gap-2 justify-end">
@@ -129,7 +129,7 @@ interface ItemData {
   description?: string | null
   quantity?: number | null
   status: string
-  guestName?: string | null
+  hostDisplayName?: string | null
 }
 
 const editingItem = ref<ItemData | null>(null)

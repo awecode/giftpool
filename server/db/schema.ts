@@ -27,6 +27,7 @@ export const claims = sqliteTable('claims', {
   status: text({ enum: ['PLANNING', 'BOUGHT'] }).notNull(),
   guestName: text(),
   guestEmail: text(),
+  isAnonymous: integer().notNull().default(0),
   createdAt: integer({ mode: 'timestamp_ms' }).notNull().default(sql`(unixepoch()*1000)`),
 })
 
