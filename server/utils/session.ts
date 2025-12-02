@@ -52,7 +52,7 @@ export function createSession(event: H3Event, eventId: number, role: SessionRole
   return session
 }
 
-export function getSession(event: H3Event): SessionData | null {
+export function getCodeSession(event: H3Event): SessionData | null {
   const id = getCookie(event, SESSION_COOKIE_NAME)
   if (!id) return null
 
@@ -70,14 +70,14 @@ export function getSession(event: H3Event): SessionData | null {
 }
 
 export function requireSession(event: H3Event): SessionData {
-  const session = getSession(event)
+  const session = getCodeSession(event)
   if (!session) {
     throw createError({ statusCode: 401, statusMessage: 'Session expired or missing' })
   }
   return session
 }
 
-export function clearSession(event: H3Event) {
+export function clearCodeSession(event: H3Event) {
   const id = getCookie(event, SESSION_COOKIE_NAME)
   if (id) {
     sessions.delete(id)
