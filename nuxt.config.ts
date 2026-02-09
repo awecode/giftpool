@@ -1,9 +1,8 @@
-import tailwindcss from "@tailwindcss/vite"
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
   modules: ['@nuxt/eslint', '@nuxt/hints', '@nuxt/ui'],
+  devtools: { enabled: true },
 
   css: ['~/assets/css/main.css'],
 
@@ -16,6 +15,7 @@ export default defineNuxtConfig({
       fromEmail: process.env.NUXT_SES_FROM_EMAIL || '',
     },
   },
+  compatibilityDate: '2025-07-15',
   vite: {
     plugins: [
       tailwindcss(),
